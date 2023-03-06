@@ -1,14 +1,12 @@
 import psycopg2.extras as extras
-from twilio.rest import Client
 
 def get_command_data(conn, command_string):
     """
-    Loads sales amount and units data from database
+    Loads dvd rental data from the database.
     """
     try:
-        with conn.cursor(cursor_factory=extras.RealDictCursor) as cur:
+        with conn.cursor() as cur:
             cur.execute(command_string)
-            record = cur.fetchall()
-            return record
+            return cur.fetchall()
     except Exception as ex:
         print("Exception: ", ex)
