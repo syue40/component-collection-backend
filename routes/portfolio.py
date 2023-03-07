@@ -12,7 +12,7 @@ portfolio = Blueprint("main", __name__)
 @portfolio.route("/profile")
 @limiter.limit("5 per minute")
 def get_profile():
-    # else proceed to fetch data from database
+    # Fetch data from a sql hosted database.
     conn = get_db()
     commands = {
         "sales_data": """select date_trunc('day', payment_date) as payment_day, sum(amount) as daily_sum, count(amount) as daily_units
@@ -27,7 +27,13 @@ def get_profile():
                             left join public.film on inventory.film_id = film.film_id group by inventory.film_id,film.title
                             order by times_rented desc""",
         "active_customers": """select case when active = 1 then 'Active' else 'Inactive' END,
-                            count(active) as entries from public.customer group by active order by entries desc"""
+                            count(active) as entries from public.customer group by active order by entries desc""",
+        "total_clients": """select count(distinct(customer.customer_id)) from public.customer""",
+        "lifetime_sales": """select sum(amount) from public.payment""",
+        "operational_countries": """select count(distinct(country_id)) from public.country""",
+        "total_genres": """select count(distinct(category_id)) from public.category""",
+        "different_languages": """select count(language_id) from public.language""",
+        "movies": """select count(inventory_id) from public.inventory"""
     }
 
     return_data = {}
