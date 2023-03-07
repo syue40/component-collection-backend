@@ -5,12 +5,20 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 import uuid
 import os
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import pool
 
 load_dotenv()
 app = Flask(__name__)
+
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 # Allowing cross origin requests since the frontend is in React
 CORS(app, origins=["*"])

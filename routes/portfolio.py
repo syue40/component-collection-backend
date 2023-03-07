@@ -1,16 +1,16 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     decode_token, jwt_required, verify_jwt_in_request
-
 from utils.dao import get_command_data
 from utils.functions import split_columns_into_arrays, split_sales_data
 from config.flask_config import get_db
-
+from config.flask_config import limiter
 
 portfolio = Blueprint("main", __name__)
 
 
 @portfolio.route("/profile")
+@limiter.limit("5 per minute")
 def get_profile():
     # else proceed to fetch data from database
     conn = get_db()
@@ -29,14 +29,14 @@ def get_profile():
         "active_customers": """select case when active = 1 then 'Active' else 'Inactive' END,
                             count(active) as entries from public.customer group by active order by entries desc"""
     }
-    
+
     return_data = {}
-    
+
     for i in commands:
         temp_data = get_command_data(conn, commands[i])
         num_columns = len(temp_data[0])
         match num_columns:
-            case 2: 
+            case 2:
                 split_data = split_columns_into_arrays(temp_data)
                 return_data[i] = split_data
             case 3:
@@ -44,6 +44,5 @@ def get_profile():
                 return_data[i] = column_data
             case _:
                 return_data[i] = temp_data
-                
 
     return jsonify({"data": return_data})
