@@ -7,10 +7,14 @@ from config.flask_config import get_db
 from config.flask_config import limiter
 
 portfolio = Blueprint("main", __name__)
+payments_table_headers = ["Payment ID", "Amount Paid", "Customer ID",
+                          "Customer Name", "Staff ID", "Payment Date", "Customer Email"]
+film_details_headers = ["Film Title", "Release Year", "Rental Rate",
+                        "Rental Duration Days", "Replacement Cost", "Rating", "Genre", "Language"]
 
 
 @portfolio.route("/profile")
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")
 def get_profile():
     # Fetch data from a sql hosted database.
     conn = get_db()
@@ -33,22 +37,34 @@ def get_profile():
         "operational_countries": """select count(distinct(country_id)) from public.country""",
         "total_genres": """select count(distinct(category_id)) from public.category""",
         "different_languages": """select count(language_id) from public.language""",
-        "movies": """select count(inventory_id) from public.inventory"""
+        "movies": """select count(inventory_id) from public.inventory""",
+        "payment_data": """select payment.payment_id, payment.amount, payment.customer_id, concat(customer.first_name, ' ', customer.last_name) as Name, payment.staff_id, date_trunc('day', payment.payment_date) as payment_date, customer.email 
+                            from public.payment left join public.customer on payment.customer_id = customer.customer_id
+                            order by payment_date""",
+        "films_table": """select film.title, film.release_year, film.rental_rate, film.rental_duration, film.replacement_cost, film.rating, category.name, language.name from public.film 
+                        left join public.language on film.language_id = language.language_id
+                        left join public.film_category on film.film_id = film_category.film_id 
+                        left join public.category on film_category.category_id = category.category_id"""
     }
 
     return_data = {}
 
-    for i in commands:
-        temp_data = get_command_data(conn, commands[i])
-        num_columns = len(temp_data[0])
-        match num_columns:
-            case 2:
-                split_data = split_columns_into_arrays(temp_data)
-                return_data[i] = split_data
-            case 3:
-                column_data = split_sales_data(temp_data)
-                return_data[i] = column_data
-            case _:
-                return_data[i] = temp_data
+    try:
+        for i in commands:
+            temp_data = get_command_data(conn, commands[i])
+            num_columns = len(temp_data[0])
+            match num_columns:
+                case 2:
+                    split_data = split_columns_into_arrays(temp_data)
+                    return_data[i] = split_data
+                case 3:
+                    column_data = split_sales_data(temp_data)
+                    return_data[i] = column_data
+                case _:
+                    return_data[i] = temp_data
+        return_data["payment_data"].insert(0, payments_table_headers)
+        return_data["films_table"].insert(0, film_details_headers)
+    except:
+        print("Error Fetching Data")
 
     return jsonify({"data": return_data})
