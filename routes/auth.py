@@ -12,7 +12,7 @@ from datetime import timedelta, datetime
 auth = Blueprint("auth", __name__)
 
 
-@auth.route('/login', methods=['POST', 'GET'])
+@auth.route('/login', methods=['GET','POST'])
 def login():
     # Extract data from the request
     email = request.json['email'].lower()
@@ -51,7 +51,7 @@ def login():
         return e
 
 
-@auth.route('/signup', methods=['POST', 'GET'])
+@auth.route('/signup', methods=['GET','POST'])
 def signup():
     
     email = request.json['email'].lower()
