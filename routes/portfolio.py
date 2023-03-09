@@ -13,7 +13,7 @@ film_details_headers = ["Film Title", "Release Year", "Rental Rate",
                         "Rental Duration Days", "Replacement Cost", "Rating", "Genre", "Language"]
 
 
-@portfolio.route("/profile")
+@portfolio.route("/profile", methods=['GET'])
 # @limiter.limit("5 per minute")
 def get_profile():
     # Fetch data from a sql hosted database.
