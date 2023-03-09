@@ -18,9 +18,9 @@ Also in the works are the backend functions for managing new users/login/sign-up
 <img src="dvd-erd.png" width="500" height="600"></img>
 
 
-### Here is the File Structure for the Backend
+### Here is the File Structure for the Backend 
 ```
-┣📦config
+┣📦config 
 ┣ ┗ 📜flask_config.py
 ┣📦utils
 ┣ ┗ 📜dao.py
