@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, Response
 from passlib.hash import sha256_crypt
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     unset_jwt_cookies, jwt_required, decode_token
-from utils.dao import get_user, add_user
+from utils.dao import get_user, add_user, update_user_details
 from utils.validator import validate_email, validate_signup_data, validate_pass
 import requests
 import os
@@ -84,6 +84,22 @@ def signup():
         }
     return res
 
+@auth.route('/update-profile', methods=['POST'])
+@jwt_required()
+def update_profile():
+    jwt_token = get_jwt()
+    email = jwt_token['sub']
+    first_name = request.json['firstName']
+    last_name = request.json['lastName']
+    biography = request.json['biography']
+    
+    conn = get_db()
+    result = update_user_details(
+        first_name, last_name, biography, email, conn)
+    if result:
+        return jsonify({"success": True})
+    else:
+        return jsonify({"alert": True, "msg": "Issue."})
 
 @auth.route('/logout', methods=["POST"])
 @jwt_required()

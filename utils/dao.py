@@ -51,3 +51,16 @@ def add_user(data_arr, conn):
                     return False
     except Exception as ex:
         print("Exception: ", ex)
+        
+def update_user_details(first_name, last_name, biography, account_number, conn):
+    sql_command = """
+    UPDATE public.users SET first_name = %s, last_name = %s, biography=%s
+    WHERE email = %s
+    """
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql_command, [
+                        first_name, last_name, biography, account_number])
+            conn.commit()
+    except Exception as ex:
+        print("Exception: ", ex)
