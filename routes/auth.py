@@ -53,7 +53,6 @@ def login():
 
 @auth.route('/signup', methods=['GET','POST'])
 def signup():
-    
     email = request.json['email'].lower()
     password = request.json['password']
 
@@ -69,19 +68,22 @@ def signup():
     data_list = [email, password]
 
     # if account number is not empty
-    conn = get_db()
-    result = add_user([email, hashed_password], conn)
-    if result == True:
-        access_token = create_access_token(identity=email)
-        res = {
-            "user_added": True,
-            "access_token": access_token
-        }
-    else:
-        res = {
-            "user_added": False,
-            "error": "Account number doesn't exist. Please contact us to resolve this issue."
-        }
+    try:
+        conn = get_db()
+        result = add_user([email, hashed_password], conn)
+        if result == True:
+            access_token = create_access_token(identity=email)
+            res = {
+                "user_added": True,
+                "access_token": access_token
+            }
+        else:
+            res = {
+                "user_added": False,
+                "error": "Account Already Exists"
+            }
+    except:
+        print("Error Adding User")
     return res
 
 @auth.route('/update-profile', methods=['POST'])
@@ -107,3 +109,45 @@ def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
     return response
+
+
+@auth.route('/change-password', methods=["POST"])
+@jwt_required()
+def change_password():
+    email = get_jwt_identity()
+    password = request.json['password']['old_password']
+    new_password = request.json['password']['new_password']
+    new_password_confirm = request.json['password']['new_password_confirm']
+    conn = get_db()
+    record = get_user(email, conn)
+
+    if record and sha256_crypt.verify(password, record['password']):
+        if new_password_confirm != new_password:
+            return jsonify({"match_new_passwords_error": "Passwords do not match"})
+        elif not validate_pass(new_password):
+            return jsonify({"password_type_error": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
+        try:
+            update_password(sha256_crypt.encrypt(new_password), email, conn)
+            return jsonify({"success": "Password successfully updated!"})
+        except:
+            return jsonify({"update_password_error": "Unable to update password"})
+    elif not sha256_crypt.verify(password, record['password']):
+        return jsonify({"old_password_incorrect_error": "Old password is incorrect"})
+    else:
+        return jsonify({"user_record_error": "Problem fetching user record"})
+
+@auth.route('/reset-password-post', methods=['POST'])
+def reset_password_post():
+    data = request.json['password']
+    new_password = data['new_password']
+    identification = decode_token(data['resetToken'], allow_expired=True)
+    email = identification['sub']
+    conn = get_db()
+
+    if not validate_pass(new_password):
+        return jsonify({"alert": True, "message": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
+    try:
+        update_password(sha256_crypt.encrypt(new_password), email, conn)
+        return jsonify({"message": "Password successfully reset. You can now login with the new password!"})
+    except:
+        return jsonify({"alert": True, "message": "Unable to update password"})
