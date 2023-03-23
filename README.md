@@ -23,7 +23,10 @@ Also in the works are the backend functions for managing new users/login/sign-up
 ┣📦config 
 ┣ ┗ 📜flask_config.py
 ┣📦utils
-┣ ┗ 📜dao.py
+┣ ┣ 📜dao.py
+┣ ┣ 📜email.py
+┣ ┣ 📜functions.py
+┣ ┗ 📜validator.py
 ┣📦routes
 ┣ ┣ 📜auth.py
 ┣ ┗ 📜portfolio.py
