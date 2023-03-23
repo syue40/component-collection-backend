@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     unset_jwt_cookies, jwt_required, decode_token
 from utils.dao import get_user, add_user, update_user_details
 from utils.validator import validate_email, validate_signup_data, validate_pass
+from utils.email import send_email
 import requests
 import os
 from config.flask_config import get_db, jwt
@@ -136,18 +137,18 @@ def change_password():
     else:
         return jsonify({"user_record_error": "Problem fetching user record"})
 
-@auth.route('/reset-password-post', methods=['POST'])
-def reset_password_post():
-    data = request.json['password']
-    new_password = data['new_password']
-    identification = decode_token(data['resetToken'], allow_expired=True)
-    email = identification['sub']
-    conn = get_db()
 
-    if not validate_pass(new_password):
-        return jsonify({"alert": True, "message": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
+@auth.route('/reset-password', methods=["POST"])
+def reset_password():
+    recipient = request.json["email"]
     try:
-        update_password(sha256_crypt.encrypt(new_password), email, conn)
-        return jsonify({"message": "Password successfully reset. You can now login with the new password!"})
+        conn = get_db()
+        user_exists = get_user(recipient, conn)
+        if not user_exists:
+            return jsonify({"user_exists": False})
+        access_token = create_access_token(
+            identity=recipient, expires_delta=timedelta(minutes=30))
+        send_email(recipient, "forgot_password", "", access_token)
     except:
-        return jsonify({"alert": True, "message": "Unable to update password"})
+        print("Error resetting password")
+    return jsonify({"sent": True})

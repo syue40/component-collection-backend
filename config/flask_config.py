@@ -28,6 +28,15 @@ app.config["JWT_SECRET_KEY"] = "Sean"
 
 # Tokens expiry time set to 2 hours.
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
+app.config["DEBUG"] = True
+
+# Required credentials for sending emails
+app.config["MAIL_SERVER"] = os.getenv('MAIL_SERVER')
+app.config["MAIL_PORT"] = os.getenv('MAIL_PORT')
+app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME')
+app.config["MAIL_PASSWORD"] = os.getenv('MAIL_PASSWORD')
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
 
 app.config["DEBUG"] = True
 jwt = JWTManager(app)
