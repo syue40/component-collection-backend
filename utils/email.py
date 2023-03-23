@@ -12,7 +12,7 @@ def send_email(recipient, route, data, token):
 def process_email(recipient, route, data, token):
     msg = Message("Component Collection Password Reset",
                     recipients=[recipient], sender="hi@gmail.com")
-    msg.html = reset_email(os.getenv("client") + "reset-password/" + token)
+    msg.html = reset_email(os.getenv("client") + "reset-password-post/" + token)
     with app.app_context():
         mail.send(msg)
 

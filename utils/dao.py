@@ -64,3 +64,22 @@ def update_user_details(first_name, last_name, biography, account_number, conn):
             conn.commit()
     except Exception as ex:
         print("Exception: ", ex)
+        
+
+def update_password(password, email, conn):
+    sql_command = """
+    UPDATE public.users SET password = %s WHERE email = %s;
+    """
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql_command, [password, email])
+            conn.commit()
+            # Checks if user was successfully added
+            # is_user = get_user(email, conn)
+            # if is_user:
+            #     print("Successfully Updated Record.")
+            #     return True
+            # else:
+            #     return False
+    except Exception as ex:
+        print("Exception: ", ex)

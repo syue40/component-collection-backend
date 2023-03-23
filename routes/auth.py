@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, Response
 from passlib.hash import sha256_crypt
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     unset_jwt_cookies, jwt_required, decode_token
-from utils.dao import get_user, add_user, update_user_details
+from utils.dao import get_user, add_user, update_user_details, update_password
 from utils.validator import validate_email, validate_signup_data, validate_pass
 from utils.email import send_email
 import requests
@@ -40,12 +40,14 @@ def login():
             else:
                 res = {
                     "account_found": True,
-                    "login": False
+                    "login": False,
+                    "alert": "Incorrect password, please try again.",
                 }
         else:
             res = {
                 "account_found": False,
-                "login": False
+                "login": False,
+                "alert": "Account does not exist."
             }
         return res
     except Exception as e:
@@ -152,3 +154,19 @@ def reset_password():
     except:
         print("Error resetting password")
     return jsonify({"sent": True})
+
+@auth.route('/reset-password-post', methods=['POST'])
+def reset_password_post():
+    data = request.json['password']
+    new_password = data['new_password']
+    identification = decode_token(data['resetToken'], allow_expired=True)
+    email = identification['sub']
+    conn = get_db()
+
+    if not validate_pass(new_password):
+        return jsonify({"alert": True, "message": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
+    try:
+        update_password(sha256_crypt.encrypt(new_password), email, conn)
+        return jsonify({"message": "Password successfully reset. You can now login with the new password!"})
+    except:
+        return jsonify({"alert": True, "message": "Unable to update password"})
