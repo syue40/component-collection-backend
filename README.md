@@ -1,5 +1,5 @@
 # Component Collection Backend
-This small Flask application is used as the backend for the Component Collection application. It has some basic functionality for querying a PostgreSQL database. 
+This small Flask application is used as the backend for the Component Collection application. It has some basic functionality for querying a PostgreSQL database. It also has methods for modifying user data stored in the database, as well as methods for sending emails when requested.
 
 The database I'm currently using for this project is a copy of the popular DVD Rental database. I currently have a copy of the database running locally, but have plans to deploy a copy to Azure.
 
