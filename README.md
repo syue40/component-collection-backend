@@ -4,7 +4,9 @@ This small Flask application is used as the backend for the Component Collection
 The database I'm currently using for this project is a copy of the popular DVD Rental database. A copy of this database is deployed on Azure.
 
 *@todo: additional routing for profile modification*\
-*@todo: implement NoSQL caching of session data in place of REDIS (too expensive)*
+*@todo: implement NoSQL caching of session data in place of REDIS (too expensive)*\
+*@todo: build GUI for this application*\
+*@todo: build addtional data scrubbers to prevent XSS and CSRF*
 
 ### Quick Start Guide
 1. Please ensure both Python and pip are installed (pip/python --version)
