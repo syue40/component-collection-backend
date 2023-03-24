@@ -1,9 +1,10 @@
 # Component Collection Backend
 This small Flask application is used as the backend for the Component Collection application. It has some basic functionality for querying a PostgreSQL database. It also has methods for modifying user data stored in the database, as well as methods for sending emails when requested.
 
-The database I'm currently using for this project is a copy of the popular DVD Rental database. I currently have a copy of the database running locally, but have plans to deploy a copy to Azure.
+The database I'm currently using for this project is a copy of the popular DVD Rental database. A copy of this database is deployed on Azure.
 
-Also in the works are the backend functions for managing new users/login/sign-up.
+*@todo: additional routing for profile modification*\
+*@todo: implement NoSQL caching of session data in place of REDIS (too expensive)*
 
 ### Quick Start Guide
 1. Please ensure both Python and pip are installed (pip/python --version)
