@@ -24,7 +24,10 @@ The database I'm currently using for this project is a copy of the popular DVD R
 ┣📦config 
 ┣ ┗ 📜flask_config.py
 ┣📦utils
-┣ ┗ 📜dao.py
+┣ ┣ 📜dao.py
+┣ ┣ 📜email.py
+┣ ┣ 📜functions.py
+┣ ┗ 📜validator.py
 ┣📦routes
 ┣ ┣ 📜auth.py
 ┣ ┗ 📜portfolio.py
