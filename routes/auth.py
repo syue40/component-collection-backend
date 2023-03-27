@@ -104,7 +104,7 @@ def update_profile():
     if result:
         return jsonify({"success": True})
     else:
-        return jsonify({"alert": True, "msg": "Issue."})
+        return jsonify({"alert": True, "msg": "Issue changing profile."})
 
 @auth.route('/logout', methods=["POST"])
 @jwt_required()
@@ -118,26 +118,26 @@ def logout():
 @jwt_required()
 def change_password():
     email = get_jwt_identity()
-    password = request.json['password']['old_password']
-    new_password = request.json['password']['new_password']
-    new_password_confirm = request.json['password']['new_password_confirm']
+    password = request.json['oldPassword']
+    new_password = request.json['newPassword']
+    new_password_confirm = request.json['newPasswordVerify']
     conn = get_db()
     record = get_user(email, conn)
 
     if record and sha256_crypt.verify(password, record['password']):
         if new_password_confirm != new_password:
-            return jsonify({"match_new_passwords_error": "Passwords do not match"})
+            return jsonify({"password_error": "Passwords do not match"})
         elif not validate_pass(new_password):
-            return jsonify({"password_type_error": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
+            return jsonify({"password_error": "Password must be at least 8 characters, and contain at least one uppercase, lowercase, numeric, and special character."})
         try:
             update_password(sha256_crypt.encrypt(new_password), email, conn)
             return jsonify({"success": "Password successfully updated!"})
         except:
-            return jsonify({"update_password_error": "Unable to update password"})
+            return jsonify({"password_error": "Unable to update password"})
     elif not sha256_crypt.verify(password, record['password']):
-        return jsonify({"old_password_incorrect_error": "Old password is incorrect"})
+        return jsonify({"password_error": "Old password is incorrect"})
     else:
-        return jsonify({"user_record_error": "Problem fetching user record"})
+        return jsonify({"password_error": "Problem fetching user record"})
 
 
 @auth.route('/reset-password', methods=["POST"])
