@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
     decode_token, jwt_required, verify_jwt_in_request
 from utils.dao import get_command_data
-from utils.functions import split_columns_into_arrays, split_sales_data
+from utils.functions import split_columns_into_arrays, split_sales_data, movies_to_object
 from config.flask_config import get_db
 from config.flask_config import limiter
 
@@ -14,7 +14,7 @@ film_details_headers = ["Film Title", "Release Year", "Rental Rate",
 
 
 @portfolio.route("/profile", methods=['GET'])
-@limiter.limit("5 per minute")
+# @limiter.limit("5 per minute")
 @jwt_required()
 def get_profile():
     # Fetch data from a sql hosted database.
@@ -47,10 +47,15 @@ def get_profile():
                         left join public.film_category on film.film_id = film_category.film_id 
                         left join public.category on film_category.category_id = category.category_id"""
     }
-
     return_data = {}
 
     try:
+        movie_array_container = get_command_data(conn, """select film.film_id, film.title, count(film.title) as num_copies, film.description, film.release_year, film.rental_rate, film.length, film.rating, category.name as "category", language.name as "language"
+                                                            from public.inventory left join public.film on inventory.film_id = film.film_id left join public.film_category on film.film_id = film_category.film_id
+                                                            left join public.category on film_category.category_id = category.category_id left join public.language on film.language_id = language.language_id
+															group by film.title, film.film_id, category.name, language.name order by film_id""")
+        catalogue = movies_to_object(movie_array_container)
+        
         for i in commands:
             temp_data = get_command_data(conn, commands[i])
             num_columns = len(temp_data[0])
@@ -63,6 +68,7 @@ def get_profile():
                     return_data[i] = column_data
                 case _:
                     return_data[i] = temp_data
+        return_data["movies"] = catalogue
         return_data["payment_data"].insert(0, payments_table_headers)
         return_data["films_table"].insert(0, film_details_headers)
     except:
