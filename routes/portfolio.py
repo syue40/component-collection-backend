@@ -13,8 +13,15 @@ film_details_headers = ["Film Title", "Release Year", "Rental Rate",
                         "Rental Duration Days", "Replacement Cost", "Rating", "Genre", "Language"]
 
 
+@portfolio.route("/user/<user_id>", methods=['GET'])
+def get_user_info(user_id):
+    # conn = get_db()
+    print(user_id)
+    # print(request.json)
+    return jsonify({"alert": "successfully fetched"})
+
 @portfolio.route("/profile", methods=['GET'])
-# @limiter.limit("5 per minute")
+@limiter.limit("5 per minute")
 @jwt_required()
 def get_profile():
     # Fetch data from a sql hosted database.
