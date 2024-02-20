@@ -1,5 +1,6 @@
 import psycopg2.extras as extras
 
+
 def get_user(email: str, conn):
     """
     Finds a record from a user table in DB using the email and returns it in a list.
@@ -12,8 +13,10 @@ def get_user(email: str, conn):
             cur.execute(sql_command, [email])
             record = cur.fetchone()
             return record
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print("Exception: ", ex)
+        return None
+
 
 def get_command_data(conn, command_string):
     """
@@ -23,53 +26,50 @@ def get_command_data(conn, command_string):
         with conn.cursor() as cur:
             cur.execute(command_string)
             return cur.fetchall()
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print("Exception: ", ex)
-        
+        return None
+
+
 def add_user(data_arr, conn):
     """
     Adds a user to users table in DB
     """
-    sql_command = """
-    INSERT INTO public.users(email, password) VALUES (%s, %s);
-    """
+    sql_command = "INSERT INTO public.users(email, password) VALUES (%s, %s);"
     try:
         is_user = get_user(data_arr[0], conn)
         # Checks if the user already exists in DB.
         if is_user:
             return False
-        else:
-            with conn.cursor() as cur:
-                cur.execute(sql_command, data_arr)
-                conn.commit()
-                # Checks if user was successfully added
-                is_user = get_user(data_arr[0], conn)
-                if is_user:
-                    print("Successfully Inserted Record.")
-                    return True
-                else:
-                    return False
-    except Exception as ex:
+        with conn.cursor() as cur:
+            cur.execute(sql_command, data_arr)
+            conn.commit()
+            # Checks if user was successfully added
+            is_user = get_user(data_arr[0], conn)
+            if is_user:
+                print("Successfully Inserted Record.")
+                return True
+            return False
+    except Exception as ex:  # pylint: disable=broad-except
         print("Exception: ", ex)
-        
+        return False
+
+
 def update_user_details(first_name, last_name, biography, account_number, conn):
-    sql_command = """
-    UPDATE public.users SET first_name = %s, last_name = %s, biography=%s
-    WHERE email = %s
-    """
+    sql_command = "UPDATE public.users SET first_name = %s,\
+                    last_name = %s, biography=%s WHERE email = %s"
     try:
         with conn.cursor() as cur:
-            cur.execute(sql_command, [
-                        first_name, last_name, biography, account_number])
+            cur.execute(sql_command, [first_name, last_name, biography, account_number])
             conn.commit()
-    except Exception as ex:
+        return True
+    except Exception as ex:  # pylint: disable=broad-except
         print("Exception: ", ex)
-        
+        return False
+
 
 def update_password(password, email, conn):
-    sql_command = """
-    UPDATE public.users SET password = %s WHERE email = %s;
-    """
+    sql_command = "UPDATE public.users SET password = %s WHERE email = %s;"
     try:
         with conn.cursor() as cur:
             cur.execute(sql_command, [password, email])
@@ -81,5 +81,6 @@ def update_password(password, email, conn):
             #     return True
             # else:
             #     return False
-    except Exception as ex:
+    except Exception as ex:  # pylint: disable=broad-except
         print("Exception: ", ex)
+        return None

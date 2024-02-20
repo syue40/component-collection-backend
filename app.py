@@ -1,5 +1,5 @@
-from routes.portfolio import portfolio as portfolio_blueprint
 from routes.auth import auth as auth_blueprint
+from routes.portfolio import portfolio as portfolio_blueprint
 import config.flask_config as flask
 import os
 
@@ -8,6 +8,6 @@ app = flask.app
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(portfolio_blueprint)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run the flask app on debug mode.
-    app.run(debug=True, port=os.environ.get('PORT'))
+    app.run(debug=True, port=os.environ.get("PORT"))
