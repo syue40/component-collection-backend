@@ -17,7 +17,7 @@ def process_email(recipient, route, data, token):
         mail.send(msg)
 
 def reset_email(href):
-    return """
+    return f"""
     <!doctype html>
     <html lang="en-US">
 
@@ -60,7 +60,7 @@ def reset_email(href):
                                             <p style="color:#455056; font-size:15px;line-height:24px; margin:0;">
                                                 Please click the link below and follow the instructions to reset your password. If you did request this change, please secure your computer and change your password.
                                             </p>
-                                            <a href='""" + href + """'
+                                            <a href='{href}'
                                                 style="background-color: #EF4444 ;text-decoration:none !important; font-weight:500; margin-top:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;">Reset
                                                 Password</a>
                                         </td>
